@@ -9,9 +9,10 @@ const {
   createHotel,
   getAllHotels,
   deleteHotel,
+  createRooms,
 } = require("../controller/hotelcontroller");
 ownerHotelRoutes.post(
-  "/create",
+  "/create",    
   authMiddleware,
   authorizeRoles("Owner"),
   createHotel
@@ -28,5 +29,12 @@ ownerHotelRoutes.delete(
   authorizeRoles("Owner"),
   deleteHotel
 );
+ownerHotelRoutes.post(
+  "/rooms/bulkCreate",
+  authMiddleware,
+  authorizeRoles("Owner"),
+  createRooms
+);
+
 
 module.exports = ownerHotelRoutes;

@@ -4,10 +4,7 @@ const User = require("../models/UserSchema");
 const Booking = require("../models/bookingschema");
 
 const roomSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
+  
   hotel: String,
   hotelId: {
     type: mongoose.Schema.Types.ObjectId,

@@ -84,7 +84,7 @@ const hotelSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    nearby_attractions: [
+    nearby_attractions: [// dont give this field // will cause error
       {
         name: String,
         type: String,

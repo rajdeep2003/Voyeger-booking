@@ -1,5 +1,6 @@
 const Hotel = require("../models/HotelSchema");
 const bcrypt = require("bcryptjs");
+const Room = require("../models/rooms");
 
 exports.createHotel = async (req, res) => {
   try {
@@ -34,14 +35,22 @@ exports.createHotel = async (req, res) => {
       local_transport,
       contact_info,
       reviews,
-      policy
+      policy,
     } = req.body;
 
     // Basic required field validation
-    if (!place || !name || !location || !price || !ownerEmail || !ownerPassword) {
+    if (
+      !place ||
+      !name ||
+      !location ||
+      !price ||
+      !ownerEmail ||
+      !ownerPassword
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields: place, name, location, price, ownerEmail, or ownerPassword."
+        message:
+          "Missing required fields: place, name, location, price, ownerEmail, or ownerPassword.",
       });
     }
 
@@ -80,21 +89,20 @@ exports.createHotel = async (req, res) => {
       local_transport,
       contact_info,
       reviews,
-      policy
+      policy,
     });
 
     return res.status(201).json({
       success: true,
       message: "Hotel created successfully",
-      hotel: newHotel
+      hotel: newHotel,
     });
-
   } catch (error) {
     console.error("Error creating hotel:", error);
     return res.status(500).json({
       success: false,
       message: "Server error",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -117,5 +125,37 @@ exports.deleteHotel = async (req, res) => {
   }
 };
 
+exports.createRooms = async (req, res) => {
+  try {
+    const { number_of_rooms, room_type, hotelId } = req.body;
 
+    // Basic validation
+    if (!number_of_rooms || !room_type || !hotelId) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
 
+    // Verify the hotel exists
+    const hotel = await Hotel.findById(hotelId);
+    if (!hotel) {
+      return res.status(404).json({ message: "Hotel not found" });
+    }
+
+    // Build room documents
+    const rooms = Array.from({ length: number_of_rooms }, () => ({
+      hotel: hotel.name, // fills the `hotel` string field
+      hotelId: hotel._id, // fills the ObjectId ref
+      room_type,
+    }));
+
+    // Insert into MongoDB
+    const createdRooms = await Room.insertMany(rooms);
+
+    res.status(201).json({
+      message: `${createdRooms.length} rooms created successfully.`,
+      rooms: createdRooms,
+    });
+  } catch (error) {
+    console.error("Error creating rooms:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
